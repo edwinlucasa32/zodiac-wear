@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ZODIAC WEAR | Tienda Zodiacal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); min-height: 100vh; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        
+        header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #eaeef2; position: sticky; top: 0; z-index: 100; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; flex-wrap: wrap; }
+        .logo h1 { font-size: 1.7rem; font-weight: 700; background: linear-gradient(135deg, #1e293b, #475569); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .logo p { font-size: 0.75rem; color: #64748b; }
+        
+        .user-actions { display: flex; gap: 12px; align-items: center; }
+        .user-btn { background: none; border: 1px solid #cbd5e1; padding: 8px 20px; border-radius: 40px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .user-btn:hover { background: #f1f5f9; }
+        .user-btn.primary { background: #0f172a; color: white; border: none; }
+        .user-info { display: flex; align-items: center; gap: 12px; background: #f1f5f9; padding: 6px 16px; border-radius: 40px; }
+        
+        .cart-widget { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 8px 18px; border-radius: 40px; cursor: pointer; transition: all 0.2s; }
+        .cart-count { background: #0f172a; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 30px; }
+        .cart-total { font-weight: 700; font-size: 0.9rem; }
+        
+        .hero { text-align: center; padding: 64px 0 40px; }
+        .hero h2 { font-size: 2.5rem; font-weight: 700; color: #0f172a; }
+        .hero p { font-size: 1rem; color: #64748b; margin-top: 12px; }
+        
+        .filters { display: flex; justify-content: center; gap: 12px; margin: 32px 0 32px; flex-wrap: wrap; }
+        .filter-btn { background: white; border: 1px solid #e2e8f0; padding: 10px 28px; border-radius: 40px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { background: #0f172a; color: white; border-color: #0f172a; }
+        
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 32px; margin: 48px 0 80px; }
+        .product-card { background: white; border-radius: 24px; overflow: hidden; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #edf2f7; }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 24px 36px -12px rgba(0,0,0,0.15); }
+        .product-img { width: 100%; aspect-ratio: 3/4; background: #f1f5f9; overflow: hidden; }
+        .product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .product-card:hover .product-img img { transform: scale(1.05); }
+        .product-info { padding: 20px; }
+        .product-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .product-sign { font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-bottom: 12px; }
+        .product-price { font-weight: 800; font-size: 1.3rem; margin-bottom: 16px; }
+        .add-to-cart { width: 100%; background: #0f172a; border: none; padding: 12px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+        .add-to-cart:hover { background: #1e293b; gap: 12px; }
+        
+        .password-wrapper { position: relative; display: flex; align-items: center; }
+        .password-wrapper input { flex: 1; padding-right: 45px; }
+        .toggle-password { position: absolute; right: 15px; cursor: pointer; color: #94a3b8; font-size: 1.1rem; }
+        .toggle-password:hover { color: #0f172a; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 300; visibility: hidden; opacity: 0; transition: 0.25s; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-container { background: white; border-radius: 32px; max-width: 520px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 32px; }
+        .modal-container h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+        .close-modal { background: none; border: none; font-size: 1.4rem; color: #94a3b8; cursor: pointer; float: right; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.85rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 20px; font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .form-group input:focus { outline: none; border-color: #0f172a; background: white; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .submit-btn { width: 100%; background: #0f172a; color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .switch-auth { text-align: center; margin-top: 20px; font-size: 0.85rem; }
+        .switch-auth span { color: #0f172a; cursor: pointer; font-weight: 600; }
+        
+        .cart-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 200; visibility: hidden; opacity: 0; transition: 0.2s; }
+        .cart-overlay.active { visibility: visible; opacity: 1; }
+        .cart-drawer { position: fixed; top: 0; right: 0; width: 100%; max-width: 460px; height: 100%; background: white; transform: translateX(100%); transition: 0.3s; display: flex; flex-direction: column; }
+        .cart-overlay.active .cart-drawer { transform: translateX(0); }
+        .cart-header { padding: 24px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; }
+        .cart-items-list { flex: 1; overflow-y: auto; padding: 20px; }
+        .cart-item { display: flex; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+        .cart-item-img { width: 70px; height: 90px; background: #f1f5f9; border-radius: 16px; overflow: hidden; }
+        .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 700; }
+        .cart-item-actions { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+        .qty-btn { background: #f1f5f9; border: none; width: 28px; height: 28px; border-radius: 30px; font-weight: 700; cursor: pointer; }
+        .remove-item { background: none; border: none; color: #94a3b8; cursor: pointer; }
+        .cart-footer { padding: 20px 24px; border-top: 1px solid #edf2f7; }
+        .cart-total-row { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; }
+        .checkout-btn { width: 100%; background: #0f172a; border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 700; cursor: pointer; }
+        
+        .metodos-pago { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
+        .metodo-pago-btn { flex: 1; background: #f8fafc; border: 2px solid #e2e8f0; padding: 20px 12px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .metodo-pago-btn.selected { border-color: #0f172a; background: #f1f5f9; }
+        .metodo-pago-btn i { font-size: 1.8rem; margin-bottom: 8px; }
+        
+        .whatsapp-checkout-btn { display: inline-flex; align-items: center; gap: 8px; background: #25D366; color: white; padding: 10px 20px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 0.85rem; }
+        footer { border-top: 1px solid #e2e8f0; padding: 32px 0; text-align: center; color: #64748b; font-size: 0.8rem; margin-top: 40px; }
+        @media (max-width: 640px) { .products-grid { gap: 20px; } .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div class="navbar">
+            <div class="logo"><h1>✦ ZODIAC WEAR</h1><p>COLECCIÓN COMPLETA · 12 SIGNOS</p></div>
+            <div style="display: flex; gap: 16px;">
+                <div class="user-actions" id="userActions">
+                    <button class="user-btn" id="btnLogin">Iniciar sesión</button>
+                    <button class="user-btn primary" id="btnRegister">Registrarse</button>
+                </div>
+                <div class="cart-widget" id="cartWidgetBtn">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                    <span class="cart-total" id="cartTotalPreview">$0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+        <div class="hero">
+            <h2>✨ Prendas con esencia zodiacal</h2>
+            <p>Los 12 signos. Diseño minimalista, tejidos sostenibles y energía única para cada uno.</p>
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">✨ Todos</button>
+            <button class="filter-btn" data-filter="sweater">🧥 Suéteres</button>
+            <button class="filter-btn" data-filter="shirt">👕 Camisas</button>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+</main>
+
+<footer><div class="container"><p>© 2025 ZODIAC WEAR — cada signo, una prenda.</p></div></footer>
+
+<!-- Modales -->
+<div class="modal-overlay" id="loginModal"><div class="modal-container"><button class="close-modal" id="closeLoginModal">&times;</button><h3>Bienvenido</h3><form id="loginForm"><div class="form-group"><label>Email</label><input type="email" id="loginEmail" required></div><div class="form-group"><div class="password-wrapper"><input type="password" id="loginPassword" required><i class="fas fa-eye toggle-password" data-target="loginPassword"></i></div><label>Contraseña</label></div><button type="submit" class="submit-btn">Ingresar</button></form><div class="switch-auth">¿No tienes cuenta? <span id="switchToRegister">Regístrate</span></div></div></div>
+
+<div class="modal-overlay" id="registerModal"><div class="modal-container"><button class="close-modal" id="closeRegisterModal">&times;</button><h3>Registro</h3><form id="registerForm"><div class="form-row"><div class="form-group"><label>Nombre</label><input type="text" id="regNombre" required></div><div class="form-group"><label>Apellido</label><input type="text" id="regApellido" required></div></div><div class="form-row"><div class="form-group"><label>Tipo</label><select id="regTipoCedula" required><option value="Venezolano">Venezolano</option><option value="Extranjero">Extranjero</option></select></div><div class="form-group"><label>Cédula</label><input type="text" id="regCedula" required></div></div><div class="form-group"><label>Email</label><input type="email" id="regEmail" required></div><div class="form-group"><label>Teléfono</label><input type="tel" id="regTelefono" required></div><div class="form-row"><div class="form-group"><div class="password-wrapper"><input type="password" id="regPassword" required><i class="fas fa-eye toggle-password" data-target="regPassword"></i></div><label>Contraseña</label></div><div class="form-group"><div class="password-wrapper"><input type="password" id="regConfirmPassword" required><i class="fas fa-eye toggle-password" data-target="regConfirmPassword"></i></div><label>Confirmar</label></div></div><button type="submit" class="submit-btn">Registrarse</button></form><div class="switch-auth">¿Ya tienes cuenta? <span id="switchToLogin">Inicia sesión</span></div></div></div>
+
+<div class="modal-overlay" id="checkoutModal">
+    <div class="modal-container">
+        <button class="close-modal" id="closeCheckoutModal">&times;</button>
+        <h3>Datos de envío</h3>
+        <form id="checkoutForm">
+            <div class="form-group"><label>🌎 País</label><input type="text" id="pais" value="Venezuela" required></div>
+            <div class="form-group"><label>📌 Estado</label><input type="text" id="estado" required></div>
+            <div class="form-group"><label>🏙️ Ciudad</label><input type="text" id="ciudad" required></div>
+            <div class="form-group"><label>📍 Dirección completa</label><input type="text" id="direccion_completa" required></div>
+            <h4>Método de pago</h4>
+            <div class="metodos-pago">
+                <div class="metodo-pago-btn" data-metodo="pago_movil"><i class="fas fa-mobile-alt"></i><p><strong>Pago Móvil</strong></p></div>
+                <div class="metodo-pago-btn" data-metodo="transferencia"><i class="fas fa-university"></i><p><strong>Transferencia</strong></p></div>
+            </div>
+            <input type="hidden" id="metodoPagoSeleccionado">
+            <div style="margin: 20px 0; text-align: center;">
+                <a href="#" id="whatsappCheckoutLink" target="_blank" class="whatsapp-checkout-btn">
+                    <i class="fab fa-whatsapp"></i> Confirmar monto
+                </a>
+            </div>
+            <button type="submit" class="submit-btn">Continuar</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="pagoMovilModal">
+    <div class="modal-container">
+        <button class="close-modal" id="closePagoMovilModal">&times;</button>
+        <h3>Pago Móvil</h3>
+        <div style="background: #0f172a; color: white; padding: 20px; border-radius: 24px; margin: 20px 0;">
+            <p><strong>Banco:</strong> Bancaribe</p>
+            <p><strong>Teléfono:</strong> 04142695699</p>
+            <p><strong>Cédula:</strong> V-32150118</p>
+            <p><strong>Monto:</strong> <span id="montoPagoMovil"></span></p>
+        </div>
+        <div class="form-group"><label>Referencia</label><input type="text" id="referenciaPagoMovil" required></div>
+        <div class="form-group"><label>Tu banco</label><select id="bancoOrigen"><option>Bancaribe</option><option>Banco de Venezuela</option><option>Banesco</option></select></div>
+        <div class="form-group"><label>Tu teléfono</label><input type="tel" id="telefonoCliente" required></div>
+        <button class="submit-btn" id="confirmarPagoMovilBtn">Confirmar</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="transferenciaModal">
+    <div class="modal-container">
+        <button class="close-modal" id="closeTransferenciaModal">&times;</button>
+        <h3>Transferencia</h3>
+        <div style="background: #0f172a; color: white; padding: 20px; border-radius: 24px; margin: 20px 0;">
+            <p><strong>Banco:</strong> Bancaribe</p>
+            <p><strong>Cuenta:</strong> 0116-0123-45-1234567890</p>
+            <p><strong>Titular:</strong> Edwin Lucas</p>
+            <p><strong>Monto:</strong> <span id="montoTransferencia"></span></p>
+        </div>
+        <div class="form-group"><label>Referencia</label><input type="text" id="referenciaTransferencia" required></div>
+        <div class="form-group"><label>Tu banco</label><select id="bancoTransferenciaOrigen"><option>Bancaribe</option><option>Banco de Venezuela</option><option>Banesco</option></select></div>
+        <div class="form-group"><label>Tu contacto</label><input type="tel" id="contactoTransferencia" required></div>
+        <button class="submit-btn" id="confirmarTransferenciaBtn">Confirmar</button>
+    </div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay">
+    <div class="cart-drawer">
+        <div class="cart-header"><h3>Mi carrito</h3><button class="close-cart" id="closeCartBtn">&times;</button></div>
+        <div class="cart-items-list" id="cartItemsList"><div style="padding:40px;text-align:center">Carrito vacío</div></div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total-row"><span>Total</span><span id="cartTotalAmount">$0</span></div>
+            <button class="checkout-btn" id="checkoutBtn">Pagar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://zodiac-backend1-production.up.railway.app/api';
+    const WHATSAPP_NUMERO = "584142695699";
+    
+    // Formato de precio tipo US$15⁵⁰
+    function formatPrice(price) {
+        let dollars = Math.floor(price / 100);
+        let cents = price % 100;
+        if (cents === 0) {
+            return `US$${dollars}`;
+        }
+        return `US$${dollars}<sup style="font-size:0.7rem">${cents}</sup>`;
+    }
+    
+    // Función para mostrar precio en HTML
+    function formatPriceHTML(price) {
+        let dollars = Math.floor(price / 100);
+        let cents = price % 100;
+        if (cents === 0) {
+            return `US$${dollars}`;
+        }
+        return `US$${dollars}<sup style="font-size:0.7rem">${cents}</sup>`;
+    }
+    
+    // Precios ajustados (camisas más baratas)
+    const sueteres = [
+        { id: 1, nombre: "Suéter Aries", signo: "ARIES", precio: 1390, imagen: "https://i.imgpeek.com/M6bAeL-rsWP0", tipo: "sweater" },
+        { id: 2, nombre: "Suéter Tauro", signo: "TAURO", precio: 1390, imagen: "https://i.imgpeek.com/8d_ju9jGvy0K", tipo: "sweater" },
+        { id: 3, nombre: "Suéter Géminis", signo: "GÉMINIS", precio: 1290, imagen: "https://i.imgpeek.com/VBPYJp65Nn3G", tipo: "sweater" },
+        { id: 4, nombre: "Suéter Cáncer", signo: "CÁNCER", precio: 1390, imagen: "https://i.imgpeek.com/wp3vUV3MQ09L", tipo: "sweater" },
+        { id: 5, nombre: "Suéter Leo", signo: "LEO", precio: 1390, imagen: "https://i.imgpeek.com/jbd4HE5zkhcm", tipo: "sweater" },
+        { id: 6, nombre: "Suéter Virgo", signo: "VIRGO", precio: 1490, imagen: "https://i.imgpeek.com/M_XW5YinqqRV", tipo: "sweater" },
+        { id: 7, nombre: "Suéter Libra", signo: "LIBRA", precio: 1290, imagen: "https://i.imgpeek.com/yZXJYDrRhjAs", tipo: "sweater" },
+        { id: 8, nombre: "Suéter Escorpio", signo: "ESCORPIO", precio: 1290, imagen: "https://i.imgpeek.com/CTttJHWZxB01", tipo: "sweater" },
+        { id: 9, nombre: "Suéter Sagitario", signo: "SAGITARIO", precio: 1490, imagen: "https://i.imgpeek.com/4OKMzk45eQmE", tipo: "sweater" },
+        { id: 10, nombre: "Suéter Capricornio", signo: "CAPRICORNIO", precio: 1290, imagen: "https://i.imgpeek.com/EphTtV1Tfjga", tipo: "sweater" },
+        { id: 11, nombre: "Suéter Acuario", signo: "ACUARIO", precio: 1290, imagen: "https://i.imgpeek.com/WUhC7dduQFP1", tipo: "sweater" },
+        { id: 12, nombre: "Suéter Piscis", signo: "PISCIS", precio: 1240, imagen: "https://i.imgpeek.com/7rvgY99k2UpO", tipo: "sweater" }
+    ];
+    
+    // Camisas con precio reducido (más atractivas)
+    const camisas = [
+        { id: 101, nombre: "Camisa Aries", signo: "ARIES", precio: 1190, imagen: "https://i.imgpeek.com/OIRmtj5OE5xC", tipo: "shirt" },
+        { id: 102, nombre: "Camisa Tauro", signo: "TAURO", precio: 1090, imagen: "https://i.imgpeek.com/zvEufEBpidnW", tipo: "shirt" },
+        { id: 103, nombre: "Camisa Géminis", signo: "GÉMINIS", precio: 1090, imagen: "https://i.imgpeek.com/1TIS_88kqamR", tipo: "shirt" },
+        { id: 104, nombre: "Camisa Cáncer", signo: "CÁNCER", precio: 1090, imagen: "https://i.imgpeek.com/Mj4NbjjhElHL", tipo: "shirt" },
+        { id: 105, nombre: "Camisa Leo", signo: "LEO", precio: 1290, imagen: "https://i.imgpeek.com/5n3RNHz53xtq", tipo: "shirt" },
+        { id: 106, nombre: "Camisa Virgo", signo: "VIRGO", precio: 1390, imagen: "https://i.imgpeek.com/DcVj1LwiWioz", tipo: "shirt" },
+        { id: 107, nombre: "Camisa Libra", signo: "LIBRA", precio: 1290, imagen: "https://i.imgpeek.com/z1lYEDdShusF", tipo: "shirt" },
+        { id: 108, nombre: "Camisa Escorpio", signo: "ESCORPIO", precio: 1390, imagen: "https://i.imgpeek.com/Ax-MzkOYq1zw", tipo: "shirt" },
+        { id: 109, nombre: "Camisa Sagitario", signo: "SAGITARIO", precio: 1190, imagen: "https://i.imgpeek.com/FMCVnKI-5wJF", tipo: "shirt" },
+        { id: 110, nombre: "Camisa Capricornio", signo: "CAPRICORNIO", precio: 1290, imagen: "https://i.imgpeek.com/utS21T2q1NtB", tipo: "shirt" },
+        { id: 111, nombre: "Camisa Acuario", signo: "ACUARIO", precio: 1190, imagen: "https://i.imgpeek.com/1a-EWMgXA1ju", tipo: "shirt" },
+        { id: 112, nombre: "Camisa Piscis", signo: "PISCIS", precio: 1190, imagen: "https://i.imgpeek.com/tsSVzEH0UXaK", tipo: "shirt" }
+    ];
+    
+    let todosLosProductos = [...sueteres, ...camisas];
+    let productosMostrados = [...todosLosProductos];
+    let cart = [];
+    let currentUser = null;
+    let metodoPagoSeleccionado = "";
+    
+    const productsGrid = document.getElementById("productsGrid");
+    const cartCountSpan = document.getElementById("cartCount");
+    const cartTotalPreviewSpan = document.getElementById("cartTotalPreview");
+    const cartOverlay = document.getElementById("cartOverlay");
+    const cartItemsList = document.getElementById("cartItemsList");
+    const cartFooter = document.getElementById("cartFooter");
+    const cartTotalAmountSpan = document.getElementById("cartTotalAmount");
+    
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', function() {
+            let targetId = this.getAttribute('data-target');
+            let input = document.getElementById(targetId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.classList.remove('fa-eye');
+                this.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                this.classList.remove('fa-eye-slash');
+                this.classList.add('fa-eye');
+            }
+        });
+    });
+    
+    function saveCart() { localStorage.setItem("zodiacCart", JSON.stringify(cart)); }
+    function loadCart() { const s = localStorage.getItem("zodiacCart"); if(s) cart = JSON.parse(s); updateCartUI(); }
+    
+    function updateCartUI() {
+        const totalItems = cart.reduce((a,i)=>a+i.cantidad,0);
+        const totalSum = cart.reduce((a,i)=>a+(i.precio*i.cantidad),0);
+        cartCountSpan.innerText = totalItems;
+        cartTotalPreviewSpan.innerHTML = formatPrice(totalSum);
+        renderCartItems();
+        if(cart.length===0) { cartFooter.style.display="none"; cartItemsList.innerHTML="<div style='padding:40px;text-align:center'>Carrito vacío</div>"; }
+        else { cartFooter.style.display="block"; cartTotalAmountSpan.innerHTML = formatPrice(totalSum); }
+        saveCart();
+    }
+    
+    function renderCartItems() {
+        if(cart.length===0) return;
+        let html='';
+        cart.forEach(item=>{ html+=`<div class='cart-item'><div class='cart-item-img'><img src='${item.imagen}'></div><div class='cart-item-details'><div class='cart-item-title'>${item.nombre}</div><div class='cart-item-sign'>${item.signo}</div><div class='cart-item-price'>${formatPrice(item.precio)}</div><div class='cart-item-actions'><button class='qty-btn' data-id='${item.id}' data-change='-1'>-</button><span>${item.cantidad}</span><button class='qty-btn' data-id='${item.id}' data-change='1'>+</button><button class='remove-item' data-id='${item.id}'><i class='fas fa-trash'></i></button></div></div></div>`; });
+        cartItemsList.innerHTML=html;
+        document.querySelectorAll('.qty-btn').forEach(b=>b.addEventListener('click',()=>{ let id=parseInt(b.dataset.id), change=parseInt(b.dataset.change); updateQuantity(id,change); }));
+        document.querySelectorAll('.remove-item').forEach(b=>b.addEventListener('click',()=>{ removeItem(parseInt(b.dataset.id)); }));
+    }
+    
+    function updateQuantity(id,delta) { let idx=cart.findIndex(i=>i.id===id); if(idx!==-1){ let newQty=cart[idx].cantidad+delta; if(newQty<=0) cart.splice(idx,1); else cart[idx].cantidad=newQty; updateCartUI(); } }
+    function removeItem(id) { cart=cart.filter(i=>i.id!==id); updateCartUI(); }
+    function addToCart(p) { let e=cart.find(i=>i.id===p.id); if(e) e.cantidad++; else cart.push({...p,cantidad:1}); updateCartUI(); }
+    
+    function renderProducts() {
+        productsGrid.innerHTML='';
+        productosMostrados.forEach(p=>{
+            let card=document.createElement('div'); card.className='product-card';
+            card.innerHTML=`<div class='product-img'><img src='${p.imagen}'></div><div class='product-info'><div class='product-title'>${p.nombre}</div><div class='product-sign'>✦ ${p.signo}</div><div class='product-price'>${formatPriceHTML(p.precio)}</div><button class='add-to-cart' data-id='${p.id}'>+ Añadir</button></div>`;
+            productsGrid.appendChild(card);
+        });
+        document.querySelectorAll('.add-to-cart').forEach(b=>b.addEventListener('click',()=>{ let id=parseInt(b.dataset.id); let prod=productosMostrados.find(p=>p.id===id); if(prod) addToCart(prod); }));
+    }
+    
+    function filterProducts(t) {
+        if(t==='all') productosMostrados=[...todosLosProductos];
+        else if(t==='sweater') productosMostrados=[...sueteres];
+        else productosMostrados=[...camisas];
+        renderProducts();
+    }
+    
+    async function registrarUsuario(userData) {
+        try {
+            const response = await fetch(`${API_URL}/registro`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userData) });
+            const data = await response.json();
+            if(data.success) { alert(`✅ Registro exitoso! Bienvenido ${userData.nombre}`); return true; }
+            else { alert("❌ Error: " + data.error); return false; }
+        } catch(e) { alert("❌ Error de conexión"); return false; }
+    }
+    
+    async function loginUsuario(email, password) {
+        try {
+            const response = await fetch(`${API_URL}/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            const data = await response.json();
+            if(data.success) {
+                currentUser = data.user;
+                document.getElementById("userActions").innerHTML = `<div class='user-info'><span>✨ Hola, ${currentUser.nombre}</span><button class='user-btn' id='btnLogout'>Salir</button></div>`;
+                document.getElementById("btnLogout").addEventListener("click", logout);
+                alert(`✅ Bienvenido ${currentUser.nombre}`);
+                return true;
+            } else { alert("❌ " + data.error); return false; }
+        } catch(e) { alert("❌ Error de conexión"); return false; }
+    }
+    
+    async function logout() { currentUser=null; document.getElementById("userActions").innerHTML=`<button class='user-btn' id='btnLogin'>Iniciar sesión</button><button class='user-btn primary' id='btnRegister'>Registrarse</button>`; document.getElementById("btnLogin").onclick=()=>openModal("loginModal"); document.getElementById("btnRegister").onclick=()=>openModal("registerModal"); alert("Sesión cerrada"); }
+    
+    function openModal(id) { document.getElementById(id).classList.add("active"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+    function openCart() { cartOverlay.classList.add("active"); }
+    function closeCart() { cartOverlay.classList.remove("active"); }
+    
+    document.querySelectorAll('.metodo-pago-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('.metodo-pago-btn').forEach(b=>b.classList.remove('selected'));
+            btn.classList.add('selected');
+            metodoPagoSeleccionado = btn.dataset.metodo;
+            document.getElementById("metodoPagoSeleccionado").value = metodoPagoSeleccionado;
+        });
+    });
+    
+    document.getElementById("checkoutBtn").onclick = () => { 
+        if(!currentUser){ alert("⚠️ Debes iniciar sesión"); openModal("loginModal"); return; }
+        if(cart.length===0){ alert("Carrito vacío"); return; }
+        const total = cart.reduce((a,i)=>a+(i.precio*i.cantidad),0);
+        document.getElementById("whatsappCheckoutLink").href = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(`Hola, mi total es ${formatPrice(total)}. ¿Confirmas el monto?`)}`;
+        document.getElementById("montoPagoMovil").innerHTML = formatPrice(total);
+        document.getElementById("montoTransferencia").innerHTML = formatPrice(total);
+        openModal("checkoutModal");
+    };
+    
+    document.getElementById("checkoutForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        if(!metodoPagoSeleccionado){ alert("Selecciona método de pago"); return; }
+        closeModal("checkoutModal");
+        if(metodoPagoSeleccionado === "pago_movil") openModal("pagoMovilModal");
+        else openModal("transferenciaModal");
+    });
+    
+    // Función para guardar pago pendiente en la tabla pagos_pendientes
+    async function guardarPagoPendiente(compraId, userId, referencia, bancoOrigen, telefonoCliente) {
+        try {
+            const response = await fetch(`${API_URL}/pagos-pendientes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    compra_id: compraId,
+                    user_id: userId,
+                    referencia: referencia,
+                    banco_origen: bancoOrigen,
+                    telefono_cliente: telefonoCliente,
+                    estado: 'pendiente'
+                })
+            });
+            const data = await response.json();
+            return data.success;
+        } catch(e) {
+            console.error("Error guardando pago pendiente:", e);
+            return false;
+        }
+    }
+    
+    document.getElementById("confirmarPagoMovilBtn").onclick = async () => {
+        const referencia = document.getElementById("referenciaPagoMovil").value.trim();
+        const bancoOrigen = document.getElementById("bancoOrigen").value;
+        const telefonoCliente = document.getElementById("telefonoCliente").value.trim();
+        
+        if(!referencia){ alert("Ingresa referencia"); return; }
+        if(!telefonoCliente){ alert("Ingresa tu teléfono"); return; }
+        
+        const total = cart.reduce((a,i)=>a+(i.precio*i.cantidad),0);
+        const direccion = `${document.getElementById("pais").value}, ${document.getElementById("estado").value}, ${document.getElementById("ciudad").value}, ${document.getElementById("direccion_completa").value}`;
+        
+        try {
+            // Guardar la compra
+            const res = await fetch(`${API_URL}/compras`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    user_id: currentUser.user_id, 
+                    total, 
+                    metodo: "Pago Móvil", 
+                    direccion_envio: direccion, 
+                    productos_comprados: cart.map(i=>({ nombre: i.nombre, signo: i.signo, cantidad: i.cantidad, precio: i.precio })) 
+                }) 
+            });
+            const data = await res.json();
+            
+            if(data.success){
+                // Guardar el pago pendiente
+                await guardarPagoPendiente(data.compraId, currentUser.user_id, referencia, bancoOrigen, telefonoCliente);
+                alert(`✅ Pago Móvil registrado! Referencia: ${referencia}\n✅ Compra #${data.compraId} - Pendiente de verificación`);
+                cart=[]; updateCartUI(); closeModal("pagoMovilModal"); closeCart();
+            } else {
+                alert("Error al registrar compra: " + data.error);
+            }
+        } catch(e){ alert("Error de conexión: " + e.message); }
+    };
+    
+    document.getElementById("confirmarTransferenciaBtn").onclick = async () => {
+        const referencia = document.getElementById("referenciaTransferencia").value.trim();
+        const bancoOrigen = document.getElementById("bancoTransferenciaOrigen").value;
+        const contacto = document.getElementById("contactoTransferencia").value.trim();
+        
+        if(!referencia){ alert("Ingresa referencia"); return; }
+        
+        const total = cart.reduce((a,i)=>a+(i.precio*i.cantidad),0);
+        const direccion = `${document.getElementById("pais").value}, ${document.getElementById("estado").value}, ${document.getElementById("ciudad").value}, ${document.getElementById("direccion_completa").value}`;
+        
+        try {
+            const res = await fetch(`${API_URL}/compras`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    user_id: currentUser.user_id, 
+                    total, 
+                    metodo: "Transferencia", 
+                    direccion_envio: direccion, 
+                    productos_comprados: cart.map(i=>({ nombre: i.nombre, signo: i.signo, cantidad: i.cantidad, precio: i.precio })) 
+                }) 
+            });
+            const data = await res.json();
+            
+            if(data.success){
+                await guardarPagoPendiente(data.compraId, currentUser.user_id, referencia, bancoOrigen, contacto);
+                alert(`✅ Transferencia registrada! Referencia: ${referencia}\n✅ Compra #${data.compraId} - Pendiente de verificación`);
+                cart=[]; updateCartUI(); closeModal("transferenciaModal"); closeCart();
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch(e){ alert("Error de conexión"); }
+    };
+    
+    document.querySelectorAll(".filter-btn").forEach(b=>{ b.addEventListener("click",()=>{ document.querySelectorAll(".filter-btn").forEach(btn=>btn.classList.remove("active")); b.classList.add("active"); filterProducts(b.dataset.filter); }); });
+    document.getElementById("cartWidgetBtn").onclick = openCart;
+    document.getElementById("closeCartBtn").onclick = closeCart;
+    document.getElementById("closeCheckoutModal").onclick = () => closeModal("checkoutModal");
+    document.getElementById("closePagoMovilModal").onclick = () => closeModal("pagoMovilModal");
+    document.getElementById("closeTransferenciaModal").onclick = () => closeModal("transferenciaModal");
+    document.getElementById("loginForm").onsubmit = async(e) => { e.preventDefault(); if(await loginUsuario(document.getElementById("loginEmail").value, document.getElementById("loginPassword").value)) closeModal("loginModal"); };
+    document.getElementById("registerForm").onsubmit = async(e) => { e.preventDefault(); if(document.getElementById("regPassword").value !== document.getElementById("regConfirmPassword").value){ alert("Contraseñas no coinciden"); return; } const data = { nombre: document.getElementById("regNombre").value, apellido: document.getElementById("regApellido").value, tipo_cedula: document.getElementById("regTipoCedula").value, cedula: document.getElementById("regCedula").value, email: document.getElementById("regEmail").value, password: document.getElementById("regPassword").value, telefono: document.getElementById("regTelefono").value }; if(await registrarUsuario(data)) closeModal("registerModal"); };
+    document.getElementById("btnLogin").onclick = () => openModal("loginModal");
+    document.getElementById("btnRegister").onclick = () => openModal("registerModal");
+    document.getElementById("closeLoginModal").onclick = () => closeModal("loginModal");
+    document.getElementById("closeRegisterModal").onclick = () => closeModal("registerModal");
+    document.getElementById("switchToRegister").onclick = () => { closeModal("loginModal"); openModal("registerModal"); };
+    document.getElementById("switchToLogin").onclick = () => { closeModal("registerModal"); openModal("loginModal"); };
+    
+    renderProducts();
+    loadCart();
+</script>
+</body>
+</html>
